@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from PIL import Image
-from math import sqrt
-
 import time 
 from grids import Grids
 
@@ -41,14 +38,11 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
     start_node = Node(None, start_pos)
     end_node = Node(None, end_pos)
     # initialize other variables for speed
-    #children_moves = [(1,0), (1,1), (0,1), (-1,1), (-1,0), (-1,-1), (0,-1), (1,-1)]
-    children_moves = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+    children_moves = [(0, -1), (0, 1), (-1, 0), (1, 0)] # 4 directional movement
     occ_grid_shape = occupancy_grid.shape
-
 
     # Append the first node
     open_list.append(start_node)
-    
     
     while len(open_list) > 0:
         
@@ -75,8 +69,8 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
                 active = active.parent
             
             return path[::-1]
-        # If not; continue
-        # Start creating successors
+        
+        # If not continue and start creating successors
         children = []
         for move in children_moves:
             # Check if the space is occupied
@@ -84,30 +78,32 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
             # Check if it is inside the scope
             if not check_validity(occ_grid_shape, child_pos):
                 continue
-            if child_pos[0] == 100:
-                print("hello world")
+            # Check if the space is walkable
             if occupancy_grid[child_pos] == 0:
                 continue
             
-
+            # Create successor node
             child = Node(active_node, child_pos)
-
             children.append(child)
         
         # Check each child
         for child in children:
+            # See if it already is in the visited nodes list
             for closed_node in closed_list:
                 if child == closed_node:
                     break
             else:
+                # Calculate the g,h and f values
                 child.g = active_node.g + 1
                 child.h = 1.01*(abs(child.position[0] - end_node.position[0]) + abs(child.position[1] - end_node.position[1]))#calc_heuristic(end_node.position, child_pos)
                 child.calc_f()
-
+                # See if it already is in the open list
                 for open_node in open_list:
+                    # See if it is a shorter path to this node
                     if (child == open_node) and (child.g >= open_node.g):
                         break
                 else:
+                    # if not; add it to the potential moves list
                     open_list.append(child)
 
 def astar_animation(path, grid, CREATEGIF = False):
@@ -154,18 +150,13 @@ def eval(grid, N = 10):
 
     print("Average executiontime run over {} iterations is: {} ms".format(N, int((time.time()-starttime)*1000)/N))
     return path 
-
-    
+  
 def main():
 
     grids = Grids()
     grid = grids.grid6
 
-
-    #starttime = time.time()
-    #path = astar_solver(grid.occupancy_grid, grid.start, grid.end)
     path = eval(grid, 1)
-    #print("---- Execution took: {} ms".format(int((time.time()-starttime)*1000)))
     print("---- Path is of length: {}".format(len(path)))
 
     astar_animation(path, grid, True)
