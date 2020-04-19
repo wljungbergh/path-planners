@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time 
 from grids import Grids
+from queue import PriorityQueue
 
 class Node:
     def __init__(self, parent_node, position):
@@ -18,6 +19,8 @@ class Node:
 
     def __eq__(self, comparasion_node):
         return self.position == comparasion_node.position
+    def __lt__(self,other):
+        return self.f < other.f
 
 def check_validity(occupancy_grid_shape, pos):
     shape = occupancy_grid_shape
@@ -32,7 +35,7 @@ def calc_heuristic(end_node, pos):
 
 def astar_solver(occupancy_grid, start_pos, end_pos):
     # initialize open and closed list 
-    open_list = []
+    open_list = PriorityQueue()
     closed_list = []
     # initialize start and end nodes
     start_node = Node(None, start_pos)
@@ -42,10 +45,11 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
     occ_grid_shape = occupancy_grid.shape
 
     # Append the first node
-    open_list.append(start_node)
+    open_list.put(start_node)
+    #open_list.append(start_node)
     
-    while len(open_list) > 0:
-        
+    while not open_list.empty():
+        '''
         active_node = open_list[0]
         active_idx = 0
 
@@ -54,9 +58,10 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
             if node.f < active_node.f:
                 active_idx = index
                 active_node = node
-        
+        '''
         # Take the lowest score and add that noded to closed list
-        open_list.pop(active_idx)
+        #open_list.pop(active_idx)
+        active_node = open_list.get()
         closed_list.append(active_node)
 
         # If we made it to the end node
@@ -98,13 +103,13 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
                 child.h = 1.01*(abs(child.position[0] - end_node.position[0]) + abs(child.position[1] - end_node.position[1]))#calc_heuristic(end_node.position, child_pos)
                 child.calc_f()
                 # See if it already is in the open list
-                for open_node in open_list:
+                for open_node in open_list.queue:
                     # See if it is a shorter path to this node
                     if (child == open_node) and (child.g >= open_node.g):
                         break
                 else:
                     # if not; add it to the potential moves list
-                    open_list.append(child)
+                    open_list.put(child)
 
 def astar_animation(path, grid, CREATEGIF = False):
     
@@ -154,12 +159,12 @@ def eval(grid, N = 10):
 def main():
 
     grids = Grids()
-    grid = grids.grid6
+    grid = grids.grid5
 
-    path = eval(grid, 1)
+    path = eval(grid, 15)
     print("---- Path is of length: {}".format(len(path)))
 
-    astar_animation(path, grid, True)
+    astar_animation(path, grid)
 
     
     
