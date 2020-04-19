@@ -3,7 +3,7 @@ Path planning Algorithms
 
 ## A* algorithm
 
-![Maximax Run](doc/4dir_astar1.gif | width=48) ![Maximax Run](doc/4dir_astar2.gif) 
+<img src="doc/4dir_astar1.gif" width="40%"> <img src="doc/4dir_astar2.gif" width="40%">
 
 ## States
 The snake has an 4 binary states showing wheter or not the positions surrounding the snakes head is occupied and one state indicating in what direction the apple is located. 
