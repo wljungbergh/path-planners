@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from PIL import Image
 from math import sqrt
-import matplotlib.animation as animation
+
 import time 
 from grids import Grids
 
@@ -50,7 +51,7 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
     
     
     while len(open_list) > 0:
-        print("Length of openlist: {}".format(len(open_list)))
+        
         active_node = open_list[0]
         active_idx = 0
 
@@ -80,11 +81,14 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
         for move in children_moves:
             # Check if the space is occupied
             child_pos = tuple(a+b for (a,b) in zip(active_node.position,move))
-            if occupancy_grid[child_pos] == 0:
-                continue
             # Check if it is inside the scope
             if not check_validity(occ_grid_shape, child_pos):
                 continue
+            if child_pos[0] == 100:
+                print("hello world")
+            if occupancy_grid[child_pos] == 0:
+                continue
+            
 
             child = Node(active_node, child_pos)
 
@@ -106,24 +110,8 @@ def astar_solver(occupancy_grid, start_pos, end_pos):
                 else:
                     open_list.append(child)
 
-
-
+def astar_animation(path, grid, CREATEGIF = False):
     
-
-
-def main():
-    CREATEGIF = False
-
-    grids = Grids()
-    grid = grids.grid1
-
-
-    starttime = time.time()
-    path = astar_solver(grid.occupancy_grid, grid.start, grid.end)
-
-    print("---- Execution took: {} ms".format(int((time.time()-starttime)*1000)))
-    print("---- Path is of length: {}".format(len(path)))
-
     fig = plt.figure()
 
     ax = plt.axes(xlim=(0, 100), ylim=(0, 100))
@@ -150,13 +138,37 @@ def main():
         return patches
 
     anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=len(path), interval=20, blit=True, repeat=False)
+                               frames=len(path), interval=10, blit=True, repeat=False)
     plt.gray()
 
     if CREATEGIF:
         anim.save('animation.gif', writer='imagemagick', fps=60)
     else:
         plt.show()
+
+def eval(grid, N = 10):
+    starttime = time.time()
+    for i in range(N):
+        print("Starting iteration {}/{}...".format(i+1, N))
+        path = astar_solver(grid.occupancy_grid, grid.start, grid.end)
+
+    print("Average executiontime run over {} iterations is: {} ms".format(N, int((time.time()-starttime)*1000)/N))
+    return path 
+
+    
+def main():
+
+    grids = Grids()
+    grid = grids.grid6
+
+
+    #starttime = time.time()
+    #path = astar_solver(grid.occupancy_grid, grid.start, grid.end)
+    path = eval(grid, 1)
+    #print("---- Execution took: {} ms".format(int((time.time()-starttime)*1000)))
+    print("---- Path is of length: {}".format(len(path)))
+
+    astar_animation(path, grid, True)
 
     
     
